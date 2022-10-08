@@ -1,0 +1,60 @@
+# Please do not modify this field at all. It will be useful for you when you make an update.
+config-version: 1.0
+
+# You can configure the plugin functionality here
+config:
+  prefix:
+    global:
+      # The prefix you want to put before sending your message. If it is set to 'none', the feature will be disabled.
+      prefix: '@>'
+      # Choose if you want the prefix to be pasted or spaced to send your message
+      # Example :
+      # @> message -> Sends the message if the value is set to false
+      # @>message -> Sends the message if the value is set to true
+      # default value : false
+      stickytext: false
+    server:
+      # The prefix you want to put before sending your message. If it is set to 'none', the feature will be disabled.
+      prefix: 'none'
+      # Choose if you want the prefix to be pasted or spaced to send your message
+      # Example :
+      # @> message -> Sends the message if the value is set to false
+      # @>message -> Sends the message if the value is set to true
+      # default value : false
+      stickytext: false
+
+messages:
+  global:
+    # The error if the prefix is not followed by any message
+    errornull: '&c[Error] Please specify a messages after the prefix !'
+    # The display of your message that will be sent to all players with the appropriate permission.
+    # Variables :
+    # %player% -> The player username
+    # %server% -> The name of the server where the message comes from. The server name is configurable in the proxy configuration.
+    message: '&3[StaffChat] Global &7[%server%] &c%player%: &f'
+    servername:
+      # Allows you to shrink or not the server name
+      shrinkname: true
+      # The number of characters desired after shrinking
+      # This value only operates if the previous parameter is activated
+      # Example :
+      # shrinksize: 6 -> "ServerName" will become "Server"
+      # shrinksize: 6 -> "Hub" will become "Hub"
+      shrinksize: 3
+  server:
+    # The error if the prefix is not followed by any message
+    errornull: '&c[Error] Please specify a messages after the prefix !'
+    # The display of your message that will be sent to all players with the appropriate permission.
+    # Variables :
+    # %player% -> The player username
+    # %server% -> The name of the server where the message comes from. The server name is configurable in the proxy configuration.
+    message: '&3[StaffChat] Server &c%player%: &f'
+    servername:
+      # Allows you to shrink or not the server name
+      shrinkname: false
+      # The number of characters desired after shrinking
+      # This value only operates if the previous parameter is activated
+      # Example :
+      # shrinksize: 6 -> "ServerName" will become "Server"
+      # shrinksize: 6 -> "Hub" will become "Hub"
+      shrinksize: 3

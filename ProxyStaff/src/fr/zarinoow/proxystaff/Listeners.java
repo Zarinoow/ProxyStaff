@@ -26,54 +26,57 @@ public class Listeners implements Listener {
 		
 		// Tableau qui sépare le message en argument
 		String[] message = event.getMessage().split(" ");
-		String server = player.getServer().getInfo().getName();		
-		
+		if(message[0] == null) return; // Stop si aucun message n'existe
+
+		String server = player.getServer().getInfo().getName();
+
+		// Variables de configuration pour les tests
+		String prefix = main.getConfig("config").getString("config.prefix.global.prefix");
+		boolean stickytext = main.getConfig("config").getBoolean("config.prefix.global.stickytext");
+
 		/*
 		 * 
 		 * Global Chat
 		 * 
 		 */		
-		
+
 		// Teste si le message contient un prefix et qu'il a la permission de parler au staff et qu'il n'est pas désactivée
-		if(message[0] != null && message[0].equalsIgnoreCase(main.getConfig("config").getString("config.globalprefix")) && player.hasPermission("proxystaff.global.send") && !main.getConfig("config").getString("config.globalprefix").equalsIgnoreCase("none")) {
+		if(player.hasPermission("proxystaff.global.send") && isPrefixedMessage(message[0], prefix, stickytext)) {
 			
-			// Error Null		
-			String errorNull = ChatColor.translateAlternateColorCodes('&', main.getConfig("config").getString("messages.global.errornull")); 
-			
-			if(message.length <= 1) {
+			// Error Null
+			if(message.length <= 1 && message[0].equalsIgnoreCase(prefix)) {
 				event.setCancelled(true);
+				String errorNull = ChatColor.translateAlternateColorCodes('&', main.getConfig("config").getString("messages.global.errornull"));
 				player.sendMessage(new TextComponent(errorNull));
 				return;
 			}
-			
-			// Var shrink
-			String serverString = server.toString();
 			
 			if(main.getConfig("config").getBoolean("messages.global.servername.shrinkname")) {
 				
 				int shrinkSize = main.getConfig("config").getInt("messages.global.servername.shrinksize");
 				
-				// Erreur shrinksize superieur au nombre de caractère dans le nom du serveur		
-				if(shrinkSize > serverString.length()) {
-					shrinkSize = serverString.length();			
-				}			
-				
-				// Nom complet
-				serverString = serverString.substring(0, shrinkSize);
+				// Redéfinis le nombre de caractère du nom du serveur
+				if(shrinkSize < server.length()) {
+					server = server.substring(0, shrinkSize);
+				}
 			}
 			
 			// Display message
 			
 			String messageContent = ChatColor.translateAlternateColorCodes('&', main.getConfig("config").getString("messages.global.message")
-					.replace("%server%", serverString)
+					.replace("%server%", server)
 					.replace("%player%", player.getName()));
 							
-			if(message[1] != null) {
+			if(stickytext || message[1] != null) {
 				
 				// Annule le message
 				event.setCancelled(true);
 				
 				String msg = "";
+
+				if(stickytext) {
+					msg = message[0].replace(prefix, "") + " ";
+				}
 				
 				for(int i = 1; i < message.length; i++) {
 					msg = msg + message[i] + " ";					
@@ -101,33 +104,32 @@ public class Listeners implements Listener {
 		 * Per server chat
 		 * 
 		 */
+
+		prefix = main.getConfig("config").getString("config.prefix.server.prefix");
+		stickytext = main.getConfig("config").getBoolean("config.prefix.server.stickytext");
 		
 		// Test que le message n'est vide, check le prefix, test la permission par
-		if(message[0] != null && message[0].equalsIgnoreCase(main.getConfig("config").getString("config.serverprefix")) && player.hasPermission("proxystaff.server.send." + server) && !main.getConfig("config").getString("config.serverprefix").equalsIgnoreCase("none")) {
+		if(player.hasPermission("proxystaff.server.send." + server) && isPrefixedMessage(message[0], prefix, stickytext)) {
 			
-			// Error Null		
-			String errorNull = ChatColor.translateAlternateColorCodes('&', main.getConfig("config").getString("messages.server.errornull"));
-			
-			if(message.length <= 1) {
+			// Error Null
+			if(message.length <= 1 && message[0].equalsIgnoreCase(prefix)) {
 				event.setCancelled(true);
+				String errorNull = ChatColor.translateAlternateColorCodes('&', main.getConfig("config").getString("messages.server.errornull"));
 				player.sendMessage(new TextComponent(errorNull));
 				return;
 			}
-			
+
 			// Var shrink
-			String serverString = server.toString();
+			String serverString = server;
 			
 			if(main.getConfig("config").getBoolean("messages.server.servername.shrinkname")) {
 				
 				int shrinkSize = main.getConfig("config").getInt("messages.server.servername.shrinksize");
-				
-				// Erreur shrinksize superieur au nombre de caractère dans le nom du serveur		
-				if(shrinkSize > serverString.length()) {
-					shrinkSize = serverString.length();			
-				}			
-				
-				// Nom complet
-				serverString = serverString.substring(0, shrinkSize);
+
+				// Redéfinis le nombre de caractère du nom du serveur
+				if(shrinkSize < server.length()) {
+					serverString = server.substring(0, shrinkSize);
+				}
 			}
 			
 			// Display message
@@ -137,12 +139,16 @@ public class Listeners implements Listener {
 					.replace("%player%", player.getName()));
 						
 			//
-			if(message[1] != null) {
+			if(stickytext || message[1] != null) {
 				
 				// Annule le message
 				event.setCancelled(true);
 				
 				String msg = "";
+
+				if(stickytext) {
+					msg = message[0].replace(prefix, "") + " ";
+				}
 				
 				for(int i = 1; i < message.length; i++) {
 					msg = msg + message[i] + " ";					
@@ -165,6 +171,14 @@ public class Listeners implements Listener {
 			
 		}
 		
+	}
+
+	// Teste si le message doit être collé ou non et que le message en paramètre est bien le prefix choisis
+	private boolean isPrefixedMessage(String message, String prefix, boolean stickytext) {
+		if(message.equalsIgnoreCase("none")) return false; // Teste si la fonctionnalité est activé
+		if(stickytext && message.startsWith(prefix)) return true; // Teste si le message commence bien par le prefix
+		if(!stickytext && message.equalsIgnoreCase(prefix)) return true; // Teste si le message est bel est bien le prefix
+		return false;
 	}
 
 }
